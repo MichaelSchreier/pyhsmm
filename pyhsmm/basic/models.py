@@ -19,7 +19,7 @@ class _Labels(pybasicbayes.models.Labels):
         return self.z
 
     @stateseq.setter
-    def stateseq(self,stateseq):
+    def stateseq(self, stateseq):
         self.z = stateseq
 
     @property
@@ -59,27 +59,29 @@ class _MixturePropertiesMixin(object):
         return self.components
 
     @obs_distns.setter
-    def obs_distns(self,distns):
+    def obs_distns(self, distns):
         self.components = distns
 
-    def predict(self,seed_data,timesteps,**kwargs):
+    def predict(self, seed_data, timesteps, **kwargs):
         # NOTE: seed_data doesn't matter!
-        return self.generate(timesteps,keep=False)
+        return self.generate(timesteps, keep=False)
 
     @classmethod
-    def from_pbb_mixture(cls,mixture):
+    def from_pbb_mixture(cls, mixture):
         self = cls(
             weights_obj=deepcopy(mixture.weights),
-            components=deepcopy(mixture.components))
+            components=deepcopy(mixture.components),
+        )
         for l in mixture.labels_list:
-            self.add_data(l.data,z=l.z)
+            self.add_data(l.data, z=l.z)
         return self
 
 
-class Mixture(_MixturePropertiesMixin,pybasicbayes.models.Mixture):
+class Mixture(_MixturePropertiesMixin, pybasicbayes.models.Mixture):
     pass
 
 
-class MixtureDistribution(_MixturePropertiesMixin,pybasicbayes.models.MixtureDistribution):
+class MixtureDistribution(
+    _MixturePropertiesMixin, pybasicbayes.models.MixtureDistribution
+):
     pass
-

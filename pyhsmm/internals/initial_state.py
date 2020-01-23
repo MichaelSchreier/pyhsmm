@@ -7,8 +7,9 @@ from pyhsmm.util.general import top_eigenvector
 from pyhsmm.basic.abstractions import GibbsSampling, MaxLikelihood
 from pyhsmm.basic.distributions import Categorical
 
+
 class UniformInitialState(object):
-    def __init__(self,model):
+    def __init__(self, model):
         self.model = model
 
     @property
@@ -24,19 +25,19 @@ class UniformInitialState(object):
     def exp_expected_log_init_state_distn(self):
         return self.pi_0
 
-    def resample(*args,**kwargs):
+    def resample(*args, **kwargs):
         pass
 
     def get_vlb(self):
-        return 0.
+        return 0.0
 
-    def meanfieldupdate(*args,**kwargs):
+    def meanfieldupdate(*args, **kwargs):
         pass
 
-    def meanfield_sgdstep(*args,**kwargs):
+    def meanfield_sgdstep(*args, **kwargs):
         pass
 
-    def max_likelihood(*args,**kwargs):
+    def max_likelihood(*args, **kwargs):
         pass
 
     def clear_caches(self):
@@ -47,13 +48,15 @@ class UniformInitialState(object):
         new.model = new_model
         return new
 
+
 class HMMInitialState(Categorical):
-    def __init__(self,model,init_state_concentration=None,pi_0=None):
+    def __init__(self, model, init_state_concentration=None, pi_0=None):
         self.model = model
         if init_state_concentration is not None or pi_0 is not None:
             self._is_steady_state = False
-            super(HMMInitialState,self).__init__(
-                    alpha_0=init_state_concentration,K=model.num_states,weights=pi_0)
+            super(HMMInitialState, self).__init__(
+                alpha_0=init_state_concentration, K=model.num_states, weights=pi_0
+            )
         else:
             self._is_steady_state = True
 
@@ -65,7 +68,7 @@ class HMMInitialState(Categorical):
             return self.weights
 
     @pi_0.setter
-    def pi_0(self,pi_0):
+    def pi_0(self, pi_0):
         self.weights = pi_0
 
     @property
@@ -79,34 +82,37 @@ class HMMInitialState(Categorical):
     def clear_caches(self):
         pass
 
-    def meanfieldupdate(self,expected_initial_states_list):
-        super(HMMInitialState,self).meanfieldupdate(None,expected_initial_states_list)
+    def meanfieldupdate(self, expected_initial_states_list):
+        super(HMMInitialState, self).meanfieldupdate(None, expected_initial_states_list)
 
-    def meanfield_sgdstep(self,expected_initial_states_list,prob,stepsize):
-        super(HMMInitialState,self).meanfield_sgdstep(
-                None,expected_initial_states_list,prob,stepsize)
+    def meanfield_sgdstep(self, expected_initial_states_list, prob, stepsize):
+        super(HMMInitialState, self).meanfield_sgdstep(
+            None, expected_initial_states_list, prob, stepsize
+        )
 
-    def max_likelihood(self,samples=None,expected_states_list=None):
-        super(HMMInitialState,self).max_likelihood(
-                data=samples,weights=expected_states_list)
+    def max_likelihood(self, samples=None, expected_states_list=None):
+        super(HMMInitialState, self).max_likelihood(
+            data=samples, weights=expected_states_list
+        )
 
     def copy_sample(self, new_model):
         new = copy.deepcopy(self)
         new.model = new_model
         return new
 
-class StartInZero(GibbsSampling,MaxLikelihood):
-    def __init__(self,num_states,**kwargs):
-        self.pi_0 = np.zeros(num_states)
-        self.pi_0[0] = 1.
 
-    def resample(self,init_states=np.array([])):
+class StartInZero(GibbsSampling, MaxLikelihood):
+    def __init__(self, num_states, **kwargs):
+        self.pi_0 = np.zeros(num_states)
+        self.pi_0[0] = 1.0
+
+    def resample(self, init_states=np.array([])):
         pass
 
-    def rvs(self,size=[]):
+    def rvs(self, size=[]):
         return np.zeros(size)
 
-    def max_likelihood(*args,**kwargs):
+    def max_likelihood(*args, **kwargs):
         pass
 
     def copy_sample(self, new_model):
@@ -114,11 +120,12 @@ class StartInZero(GibbsSampling,MaxLikelihood):
         new.model = new_model
         return new
 
+
 class HSMMInitialState(HMMInitialState):
     @property
     def steady_state_distribution(self):
         if self._steady_state_distribution is None:
-            markov_part = super(HSMMSteadyState,self).pi_0
+            markov_part = super(HSMMSteadyState, self).pi_0
             duration_expectations = np.array([d.mean for d in self.model.dur_distns])
             self._steady_state_distribution = markov_part * duration_expectations
             self._steady_state_distribution /= self._steady_state_distribution.sum()
